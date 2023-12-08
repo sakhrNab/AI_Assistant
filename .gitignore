@@ -1,0 +1,10 @@
+.env
+/modules/CodeOptimizer.py
+/modules/CommandPanel.py
+/modules/FeedbackDisplay.py
+/modules/ImageAnalyzer.py
+/modules/MainWinodow.py
+/modules/TextProcessor.py
+/modules/VoiceHandler.py
+/modules/__pycache__
+/gui/__pycache__
