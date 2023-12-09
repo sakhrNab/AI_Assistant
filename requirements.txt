@@ -4,4 +4,4 @@ PyAutoGUI==0.9.54
 SpeechRecognition==3.10.1
 tk==0.1.0
 PyQt5==5.15.10
-#pyaudio
+#pyaudio pygetwindow pyautogui cv2 opencv-python pytesseract

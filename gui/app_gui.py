@@ -1,41 +1,51 @@
 import tkinter as tk
+from tkinter import scrolledtext
+import threading
+import datetime
+from PIL import Image, ImageTk
 
-class MainApplication:
-    def __init__(self, master, ai_assistant):
-        self.master = master
-        self.ai_assistant = ai_assistant
+class AppGUI:
+    def __init__(self, screen_observer):
+        self.screen_observer = screen_observer
+        self.root = tk.Tk()
+        self.root.title("AI Assistant")
 
-        master.title("AI Assistant")
-
-        # Command Input Area
-        self.command_entry = tk.Entry(master)
-        self.command_entry.pack()
-
-        # Feedback Display
-        self.feedback_text = tk.Text(master, height=10, width=50)
-        self.feedback_text.pack()
-
-        # Control Buttons
-        self.start_button = tk.Button(master, text="Start", command=self.start)
+        # Create Start and Stop buttons
+        self.start_button = tk.Button(self.root, text="Start Observing", command=self.start_observing)
         self.start_button.pack()
-        self.stop_button = tk.Button(master, text="Stop", command=self.stop)
+
+        self.stop_button = tk.Button(self.root, text="Stop Observing", command=self.stop_observing)
         self.stop_button.pack()
 
-    def start(self):
-        # Start AI Assistant processes
-        self.ai_assistant.start()
-        self.feedback_text.insert(tk.END, "AI Assistant started.\n")
+        # Text area to display detected text
+        self.text_area = scrolledtext.ScrolledText(self.root, wrap=tk.WORD)
+        self.text_area.pack(expand=True, fill='both')
 
-    def stop(self):
-        # Stop AI Assistant processes
-        self.ai_assistant.stop()
-        self.feedback_text.insert(tk.END, "AI Assistant stopped.\n")
+        # Label to display images
+        self.image_label = tk.Label(self.root)
+        self.image_label.pack()
+        
+    def start_observing(self):
+        # Start screen observation in a separate thread
+        self.observer_thread = threading.Thread(target=self.screen_observer.run)
+        self.observer_thread.start()
 
-    def display_message(self, message):
-        self.feedback_text.insert(tk.END, message + '\n')
+    def stop_observing(self):
+       # Stop the screen observation
+        self.screen_observer.stop()
+        self.observer_thread.join()
 
-def run_app(ai_assistant):
-    root = tk.Tk()
-    MainApplication(root, ai_assistant)  # Directly pass the root and ai_assistant without assigning to a variable
-    root.mainloop()
+    def update_text_area(self, text):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        formatted_text = f"[{timestamp}] {text}\n" + '-'*40 + '\n'
+        self.text_area.insert(tk.END, formatted_text)
+        self.text_area.yview(tk.END)
+    
+    def update_image(self, image):
+        # Convert the image to a format Tkinter can use and update the label
+        tk_image = ImageTk.PhotoImage(image)
+        self.image_label.configure(image=tk_image)
+        self.image_label.image = tk_image  # Keep a reference to avoid garbage collection
 
+    def run(self):
+        self.root.mainloop()
